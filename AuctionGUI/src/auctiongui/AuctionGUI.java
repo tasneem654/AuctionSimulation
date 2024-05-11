@@ -83,14 +83,28 @@ public class AuctionGUI extends JFrame {
         startButton.setEnabled(false);
         String itemName = itemNameField.getText().trim();
         String itemDescription = itemDescriptionField.getText().trim();
-        double startingBid = Double.parseDouble(startingBidField.getText().trim());
-        long duration = Long.parseLong(auctionDurationField.getText().trim()) * 1000; // Convert seconds to milliseconds
+        String startingBidText = startingBidField.getText().trim();
+        String auctionDurationText = auctionDurationField.getText().trim();
 
-        Item item = new Item(itemName, itemDescription, (ImageIcon) itemImageLabel.getIcon());
-        auction = new Auction(item, startingBid);
-        startAuction(duration);
-        startButton.setEnabled(false);
-        endButton.setEnabled(true);
+        // Check for empty inputs
+        if (itemName.isEmpty() || itemDescription.isEmpty() || startingBidText.isEmpty() || auctionDurationText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all the fields.", "Error", JOptionPane.ERROR_MESSAGE);
+            startButton.setEnabled(true); // Enable start button again
+            return;
+        }
+
+        try {
+            double startingBid = Double.parseDouble(startingBidText);
+            long duration = Long.parseLong(auctionDurationText) * 1000; // Convert seconds to milliseconds
+
+            Item item = new Item(itemName, itemDescription, (ImageIcon) itemImageLabel.getIcon());
+            auction = new Auction(item, startingBid);
+            startAuction(duration);
+            endButton.setEnabled(true);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid input format for starting bid or auction duration.", "Error", JOptionPane.ERROR_MESSAGE);
+            startButton.setEnabled(true); // Enable start button again
+        }
     }
 
     private void endAuction(ActionEvent e) {
