@@ -7,7 +7,7 @@ class Buyer implements Runnable {
     private AuctionGUI auctionGUI; // Add this member variable
     private Random random = new Random();
 
-    public Buyer(String name, Auction auction, AuctionGUI auctionGUI) { // Modify the constructor to accept AuctionGUI
+    public Buyer(String name, Auction auction, AuctionGUI auctionGUI) { 
         this.name = name;
         this.auction = auction;
         this.auctionGUI = auctionGUI; // Initialize auctionGUI

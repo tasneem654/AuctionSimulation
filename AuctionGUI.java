@@ -94,7 +94,7 @@ public class AuctionGUI extends JFrame {
     private void startAuction(long duration) {
         auction.start();
         for (int i = 1; i <= 5; i++) {
-            new Thread(new Buyer("Buyer " + i, auction, this)).start(); // Pass `this` as the third argument
+            new Thread(new Buyer("Buyer " + i, auction, this)).start(); 
         }
 
         if (auctionTimer != null) {
