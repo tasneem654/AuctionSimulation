@@ -4,7 +4,7 @@ import java.util.Random;
 class Buyer implements Runnable {
     private String name;
     private Auction auction;
-    private AuctionGUI auctionGUI; // Add this member variable
+    private AuctionGUI auctionGUI; 
     private Random random = new Random();
 
     public Buyer(String name, Auction auction, AuctionGUI auctionGUI) { 
