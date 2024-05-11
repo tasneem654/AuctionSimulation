@@ -5,12 +5,12 @@ import java.io.File;
 
 public class AuctionGUI extends JFrame {
     private Auction auction;
-    private Timer auctionTimer;  
+    private Timer auctionTimer;
     private JTextArea bidLog = new JTextArea(10, 30);
     private JTextField itemNameField = new JTextField(20);
     private JTextArea itemDescriptionField = new JTextArea(2, 20);
-    private JTextField startingBidField = new JTextField(10);
-    private JTextField auctionDurationField = new JTextField(10);
+    private JTextField startingBidField = new JTextField(20);
+    private JTextField auctionDurationField = new JTextField(20);
     private JLabel currentBid = new JLabel("Current highest bid: $0.0");
     private JLabel winnerLabel = new JLabel("Winner: None");
     private JLabel itemImageLabel = new JLabel();
@@ -24,7 +24,10 @@ public class AuctionGUI extends JFrame {
 
     private void setupUI() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new FlowLayout());
+        setLayout(new BorderLayout());
+
+        JPanel inputPanel = new JPanel(new GridLayout(6, 2, 5, 5)); // Grid layout for inputs
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         bidLog.setEditable(false);
         itemDescriptionField.setLineWrap(true);
@@ -33,22 +36,41 @@ public class AuctionGUI extends JFrame {
         uploadButton.addActionListener(this::uploadImage);
         startButton.addActionListener(this::setupAuction);
 
-        add(new JLabel("Item Name:"));
-        add(itemNameField);
-        add(new JLabel("Description:"));
-        add(new JScrollPane(itemDescriptionField));
-        add(new JLabel("Starting Bid ($):"));
-        add(startingBidField);
-        add(new JLabel("Duration (seconds):"));
-        add(auctionDurationField);
-        add(uploadButton);
-        add(itemImageLabel);
-        add(startButton);
-        add(currentBid);
-        add(new JScrollPane(bidLog));
-        add(winnerLabel);
+        inputPanel.add(new JLabel("Item Name:"));
+        inputPanel.add(itemNameField);
+        inputPanel.add(new JLabel("Description:"));
+        inputPanel.add(itemDescriptionField);
+        inputPanel.add(new JLabel("Starting Bid ($):"));
+        inputPanel.add(startingBidField);
+        inputPanel.add(new JLabel("Duration (seconds):"));
+        inputPanel.add(auctionDurationField);
 
-        setSize(600, 500);
+        // Create a panel for buttons
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+        buttonPanel.add(uploadButton);
+        buttonPanel.add(startButton);
+
+        // Create a panel to hold the input panel and button panel
+        JPanel inputButtonPanel = new JPanel(new BorderLayout());
+        inputButtonPanel.add(inputPanel, BorderLayout.CENTER);
+        inputButtonPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        JPanel auctionPanel = new JPanel(new BorderLayout());
+        auctionPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        auctionPanel.add(itemImageLabel, BorderLayout.WEST); // Align image to the left
+        auctionPanel.add(currentBid, BorderLayout.NORTH);
+        auctionPanel.add(new JScrollPane(bidLog), BorderLayout.CENTER);
+        auctionPanel.add(winnerLabel, BorderLayout.SOUTH);
+
+        // Create a panel to hold the inputButtonPanel and auctionPanel
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(inputButtonPanel, BorderLayout.NORTH);
+        mainPanel.add(auctionPanel, BorderLayout.CENTER);
+
+        add(mainPanel);
+
+        setSize(800, 600); // Adjusted size for better visibility
+        setLocationRelativeTo(null); // Center the frame on the screen
         setVisible(true);
     }
 
@@ -58,11 +80,12 @@ public class AuctionGUI extends JFrame {
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             ImageIcon icon = new ImageIcon(selectedFile.getAbsolutePath());
-            Image image = icon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+            Image image = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH); // Adjusted image size
             itemImageLabel.setIcon(new ImageIcon(image));
             pack();
         }
     }
+
 
     private void setupAuction(ActionEvent e) {
         startButton.setEnabled(false);
