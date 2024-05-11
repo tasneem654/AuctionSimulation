@@ -14,6 +14,10 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Random;
 
+
+
+
+
 public class AuctionGUI extends JFrame {
     private Auction auction;
     private Timer auctionTimer;  // Reference to the timer controlling the auction end
@@ -26,7 +30,6 @@ public class AuctionGUI extends JFrame {
     private JLabel winnerLabel = new JLabel("Winner: None");
     private JLabel itemImageLabel = new JLabel();
     private JButton startButton = new JButton("Start Auction");
-    private JButton endButton = new JButton("End Auction");
     private JButton uploadButton = new JButton("Upload Image");
 
     public AuctionGUI() {
@@ -44,8 +47,6 @@ public class AuctionGUI extends JFrame {
 
         uploadButton.addActionListener(this::uploadImage);
         startButton.addActionListener(this::setupAuction);
-        endButton.addActionListener(this::endAuction);
-        endButton.setEnabled(false);
 
         add(new JLabel("Item Name:"));
         add(itemNameField);
@@ -58,7 +59,6 @@ public class AuctionGUI extends JFrame {
         add(uploadButton);
         add(itemImageLabel);
         add(startButton);
-        add(endButton);
         add(currentBid);
         add(new JScrollPane(bidLog));
         add(winnerLabel);
@@ -100,39 +100,29 @@ public class AuctionGUI extends JFrame {
             Item item = new Item(itemName, itemDescription, (ImageIcon) itemImageLabel.getIcon());
             auction = new Auction(item, startingBid);
             startAuction(duration);
-            endButton.setEnabled(true);
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Invalid input format for starting bid or auction duration.", "Error", JOptionPane.ERROR_MESSAGE);
             startButton.setEnabled(true); // Enable start button again
         }
     }
 
-    private void endAuction(ActionEvent e) {
-        auction.end();
-        winnerLabel.setText("Winner: " + auction.getWinner());
-        endButton.setEnabled(false);
-    }
-
     private void startAuction(long duration) {
-    auction.start();
-    for (int i = 1; i <= 5; i++) {
-        new Thread(new Bidder("Bidder " + i, auction)).start();
+        auction.start();
+        for (int i = 1; i <= 5; i++) {
+            new Thread(new Bidder("Bidder " + i, auction)).start();
+        }
+
+        if (auctionTimer != null) {
+            auctionTimer.stop();  // Stop the existing timer if there is one
+        }
+
+        // Start a new timer
+        auctionTimer = new Timer((int) duration, ev -> {
+            auction.end();
+        });
+        auctionTimer.setRepeats(false);  // Ensure it doesn't repeat
+        auctionTimer.start();
     }
-
-    if (auctionTimer != null) {
-        auctionTimer.stop();  // Stop the existing timer if there is one
-    }
-
-    // Start a new timer
-    auctionTimer = new Timer((int) duration, ev -> {
-        auction.end();
-        endButton.setEnabled(false);
-    });
-    auctionTimer.setRepeats(false);  // Ensure it doesn't repeat
-    auctionTimer.start();
-}
-
-  
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(AuctionGUI::new);
@@ -143,11 +133,10 @@ public class AuctionGUI extends JFrame {
         private Auction auction;
         private Random random = new Random();
 
-    public Bidder(String name, Auction auction) {
-    this.name = name;
-    this.auction = auction;  // Correct the syntax error here
-}
-
+        public Bidder(String name, Auction auction) {
+            this.name = name;
+            this.auction = auction;  // Correct the syntax error here
+        }
 
         @Override
         public void run() {
@@ -203,19 +192,19 @@ public class AuctionGUI extends JFrame {
         }
 
         public synchronized void end() {
-          if (!ended) {  // Check if the auction has already ended
-        ended = true;
-        System.out.println("Auction has ended.");
-        SwingUtilities.invokeLater(() -> {
-            bidLog.append("Auction has ended.\n");
-            if (winner != null) {
-                winnerLabel.setText("Winner: " + winner);
-            } else {
-                winnerLabel.setText("No winner.");
+            if (!ended) {  // Check if the auction has already ended
+                ended = true;
+                System.out.println("Auction has ended.");
+                SwingUtilities.invokeLater(() -> {
+                    bidLog.append("Auction has ended.\n");
+                    if (winner != null) {
+                        winnerLabel.setText("Winner: " + winner);
+                    } else {
+                        winnerLabel.setText("No winner.");
+                    }
+                });
             }
-        });
-    }
-}
+        }
 
         public boolean isEnded() {
             return ended;
